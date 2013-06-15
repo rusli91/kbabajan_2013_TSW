@@ -1,0 +1,9 @@
+      body{
+        text-align: center;
+        top:40%;
+      } 
+ 
+      #canvas{
+        margin: 70px auto;
+        background: #339900;
+      }

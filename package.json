@@ -1,0 +1,13 @@
+{
+  "name": "snake-TSWzboj",
+  "version": "0.0.1",
+  "author": "Karen Babajan",
+  "dependencies": {
+    "socket.io": "0.9.x",   
+    "express": "2.3.12",
+  },
+  "engines": {
+    "node": "0.8.x",
+    "npm": "1.1.x"
+  }
+}
