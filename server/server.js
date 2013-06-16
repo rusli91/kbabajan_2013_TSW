@@ -6,11 +6,53 @@
 //Klasa obiektow/jablek
     var obj = require('./item.js');
 
+// zmienne pol planszy
+    var cell = 8;
+    var line = 2;
+    var that = this;
+    var clients = [];
+
+
 //http
     var express = require('express');
     var http = require('http');
     var path = require('path');
 //
+
+// Funkcje przekazujace dane od/do serwera
+    // informacje o planszy
+    var getFieldWidth = function() {
+        return that.fieldWidth;
+    };
+
+    var getFieldHeight = function() {
+        return that.fieldHeight;
+    };
+
+    // wielksoc pola gry
+    var initFieldSize = function() {
+        that.canvasWidth = 300;
+        that.canvasHeight = 200;
+    }
+
+    // czysc plansze
+    var clear = function() {
+        that.players = [];
+        that.items = [];
+    }
+    //
+
+    // informacje o graczu
+    var growField = function() {
+        var increase = (cell + line) * 2;
+        that.canvasWidth += increase;
+        that.canvasHeight += increase;
+        that.fieldHeight = that.canvasHeight / (cell + line);
+        that.fieldWidth = that.canvasWidth / (cell + line);
+    }
+
+    //
+
 
 //Konfiguracja i uruchomienie serwera HTTP
     var snaker = express();
@@ -41,21 +83,25 @@
             var selectedPlayer = that.playersSocketSort[socket.id];
             //if direction is allowed change direction
             switch (data.keyCode) {
-                //w gore
                 case 38:
-
+                    if (selectedPlayer.body[1].x !== selectedPlayer.body[0].x && selectedPlayer.body[1].y - 1 !== selectedPlayer.body[0].y) {
+                        selectedPlayer.setDirection("u");
+                    }
                     break;
-                    //w dol
                 case 40:
-
+                    if (selectedPlayer.body[1].x !== selectedPlayer.body[0].x && selectedPlayer.body[1].y + 1 !== selectedPlayer.body[0].y) {
+                        selectedPlayer.setDirection("d");
+                    }
                     break;
-                    //w lewo
                 case 37:
-
+                    if (selectedPlayer.body[1].x - 1 !== selectedPlayer.body[0].x && selectedPlayer.body[1].y !== selectedPlayer.body[0].y) {
+                        selectedPlayer.setDirection("l");
+                    }
                     break;
-                    //w prawo
                 case 39:
-
+                    if (selectedPlayer.body[1].x + 1 !== selectedPlayer.body[0].x && selectedPlayer.body[1].y !== selectedPlayer.body[0].y) {
+                        selectedPlayer.setDirection("r");
+                    }
                     break;
             }
         });
@@ -66,6 +112,7 @@
 
     var onConnect = function(socket) {
         io.sockets.emit('connect', {
+            c: cell, l: line, w: that.canvasWidth, h: that.canvasHeight
         });
     }
     var onDisconnect = function(socket) {
@@ -79,7 +126,7 @@
         for (var i = 0; i < l; i++) {
             var p = that.players[i].player;
             if (p.isAlive() === false) {
-                // licznik cial rosnie, gdy ktos umiera
+                // licznik martwych segmentow cial rosnie, gdy ktos umiera
                 deadCount++;
                 // ktos umarl - powiadom
                 if (p.gameOver === false) {
@@ -97,14 +144,33 @@
         }
     }
 
+    // wlasciwa petla gry (silnik silnika)
+    var gameLoop = function() {
+        isGameOver();
+        io.sockets.emit('draw', {
+            "players": that.players,
+            "items": that.items
+        });
+        setTimeout(function() {
+            gameLoop()
+        }, 70);
+    }
+
 
     //Wlasciwy server socket.io
     io.sockets.on('connection', function(socket) {
         //doczytac o socket.id
         var id = socket.id;
-
-        //Obsluga wlasciwa
+        growField();
+        clients[socket.id] = socket;
         onConnect(socket);
+        var player = new snake.Snake(that);
+        // wrzuc nowego gracza na liste
+        that.players.push({"id": id, "player": player});
+        that.playersSocketSort[socket.id] = player;
+        //Obsluga wlasciwa
+        gameLoop();
+        onkeyDown(socket);
         onDisconnect(socket);
     });
 

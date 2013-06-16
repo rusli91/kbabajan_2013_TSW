@@ -7,10 +7,12 @@ exports.Snake = function(server) {
     this.interval = 500;
     // cialo weza
     this.body = [];
+    // kazdy gracz ma inny kolor, skrypt wybierania kolorow dla kazdego z socketid
+    var col = require('./colors.js');
 
     // funkcje przekazujace wartosci gracza/silnika gry
     // wczytywanie interwalu gry
-    
+
     // zywotnosc
     this.isAlive = function() {
         return (alive === true) ? true : false;
@@ -19,14 +21,14 @@ exports.Snake = function(server) {
     var setAlive = function(value) {
         alive = value;
     };
-    
+
     var getInterval = function() {
         return that.interval;
     };
     var setInterval = function(interv) {
         that.interval = interv;
     }
-    
+
     //aktualna pozycja weza/ciala
     var getPosition = function() {
         return that.body;
