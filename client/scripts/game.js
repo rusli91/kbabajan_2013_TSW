@@ -65,7 +65,7 @@
         canvas.width = canvas.width;
         for (var i = -(game.line / 2); i < canvas.width; i += (game.cell + game.line)) {
             for (var j = -(game.line / 2); j < canvas.height; j += (game.cell + game.line)) {
-                game.drawRect(i + game.line, j + game.line, "#000");
+                game.drawRect(i + game.line, j + game.line, "#003c44");
             }
         }
     };
@@ -77,16 +77,53 @@
             if (game.players[i].player.alive === true) {
                 var b = game.players[i].player.body;
                 for (var j = 0; j < b.length; j++) {
-                    game.drawRect(b[j].x * (game.line + game.cell) + (game.line / 2), b[j].y * (game.line + game.cell) + (game.line / 2), game.players[i].player.color.arr);
+                    var colorz = toString(game.players[i].player.color.arr)
+                    game.drawRect(b[j].x * (game.line + game.cell) + (game.line / 2), b[j].y * (game.line + game.cell) + (game.line / 2), colorz);
+                    console.log("Kolor to" + colorz);
                 }
             }
             else {
                 for (var j = 0; j < game.players[i].player.body.length; j++) {
-                    game.drawRect(game.players[i].player.body[j].x * (game.line + game.cell) + (game.line / 2), game.players[i].player.body[j].y * (game.line + game.cell) + (game.line / 2), "#fff");
+                    game.drawRect(game.players[i].player.body[j].x * (game.line + game.cell) + (game.line / 2), game.players[i].player.body[j].y * (game.line + game.cell) + (game.line / 2), game.players[i].player.color.arr);
                 }
             }
         }
     };
+
+    // rysowanie jablek
+    game.drawItems = function() {
+        var il = game.items.length;
+        for (var i = 0; i < il; i++) {
+            var item = game.items[i].item;
+            var color = "#777";
+            if (item.type === "s") {
+                color = "#fff"
+            }
+            else if (item.type === "m") {
+                color = "#f00";
+            }
+            else if (item.type === "b") {
+                color = "#ff0";
+            }
+            else if (item.type === "f") {
+                color = "#f0f";
+            }
+            game.drawRect(item.x * (game.line + game.cell) + (game.line / 2), item.y * (game.line + game.cell) + (game.line / 2), color);
+        }
+    }
+
+
+    game.update = function() {
+        game.drawBackground();
+        game.drawPlayers();
+        game.drawItems();
+
+        setTimeout(function() {
+            return game.update()
+        }, 100);
+
+    }
+
 
     //
     game.init();

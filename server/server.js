@@ -10,13 +10,24 @@
     var cell = 8;
     var line = 2;
     var that = this;
-    var clients = [];
+
+
+    // inicjalizacja zmiennych publicznych
+    this.players = [];
+    this.playersSocketSort = [];
+    this.items = [];
+    this.fieldWidth = 0;
+    this.fieldHeight = 0;
+    //canvas setup
+    this.canvasWidth = 300;
+    this.canvasHeight = 200;
 
 
 //http
     var express = require('express');
     var http = require('http');
     var path = require('path');
+    var less = require('less-middleware');
 //
 
 // Funkcje przekazujace dane od/do serwera
@@ -62,10 +73,10 @@
         snaker.use(express.favicon());
         snaker.use(express.logger('dev'));
         snaker.use(less({
-            src: __dirname + '/client',
+            src: __dirname + '../client',
             compress: true
         }));
-        snaker.use(express.static(path.join(__dirname, 'client')));
+        snaker.use(express.static(path.join(__dirname, '../client')));
     });
 
     var server = http.createServer(snaker).listen(snaker.get('port'), function() {
@@ -116,9 +127,9 @@
         });
     }
     var onDisconnect = function(socket) {
-        socket.on('disconnect', function() {
-            console.log("Rozlaczono ");
-        });
+        socket.on('disconnect', function(){
+      console.log("disconnected " + socket.id);
+    });
     }
     var isGameOver = function() {
         var l = that.players.length;
@@ -168,6 +179,9 @@
         // wrzuc nowego gracza na liste
         that.players.push({"id": id, "player": player});
         that.playersSocketSort[socket.id] = player;
+        // jablka
+        var item = new obj.Item(that);
+        that.items.push({"item": item});
         //Obsluga wlasciwa
         gameLoop();
         onkeyDown(socket);
